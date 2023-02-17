@@ -26,11 +26,11 @@ void UpdateTasks() {
     uint32_t time = millis();
     for (int i = 0; i < queueLength; i++) {
         if (time > (queue[i].timeout + queue[i].timeWhenSet)) {
+            queue[i].function();
             queueLength--;
             // move the other array elements down to fill the gap
             for (int u = i; u < queueLength; u++)
                 queue[u] = queue[u + 1];
-            queue[i].function();
         }
     }
 }

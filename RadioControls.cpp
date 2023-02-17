@@ -20,33 +20,27 @@ void RadioControls::Init(uint8_t CE, uint8_t CS, const char* address1, const cha
 
 void RadioControls::UpdateReceive() {
     if (radio.available()) {
-        uint8_t received[2];
-        radio.read(received, 2);
-        if (received[1] == 123)
-            _motorHandler(true);
-        else if (received[1] == 234)
-            _motorHandler(false);
+        _motorHandler(true);
         // clear read fifo
         while(radio.available()) {
             uint8_t dummy;
             radio.read(&dummy, 1);
         }
     }
+    else
+        _motorHandler(false);
 }
 
 void RadioControls::UpdateTransmit(bool buttonState) {
-    RadioControls::UpdateReceive();
-    for (int i = 0; i < SEND_REPEATS; i++) {
-        uint8_t buffer[2];
-        if (buttonState)
-            buffer[1] = 123;
-        else 
-            buffer[1] = 234;
+    if (buttonState) {
         radio.stopListening();
-        if (radio.write(buffer, 2))
-            break;
+        for (int i = 0; i < SEND_REPEATS; i++) {
+            uint8_t buffer[2];
+            if (radio.write(buffer, 2))
+                break;
+        }
+        radio.startListening();
     }
-    radio.startListening();
 }
 
 /*
