@@ -7,6 +7,7 @@ RadioControls controls;
 
 void setup() {
     controls.Init(RADIO_CE, RADIO_CS, ADDRESS1, ADDRESS2, MotorHandler);
+    //controls.Init(RADIO_CE, RADIO_CS, ADDRESS2, ADDRESS1, MotorHandler);
     pinMode(BUTTON_PIN, INPUT);
     pinMode(MOTOR_PIN, OUTPUT);
     pinMode(LED_PIN, OUTPUT);
@@ -16,8 +17,9 @@ void setup() {
 
 int a = 0;
 void flip() {
-    a = 1 - a;
-    digitalWrite(MOTOR_PIN, a);
+    //a = 1 - a;
+    //digitalWrite(MOTOR_PIN, a);
+    digitalWrite(LED_PIN, a);
     AddTask(flip, 200);
 }
 
@@ -34,8 +36,21 @@ void Transmit() {
     controls.UpdateTransmit(!digitalRead(BUTTON_PIN));
 }
 
+bool button_switched = false;
+
+void ResetCooldown() {
+    button_switched = false;
+}
+
 void ButtonISR() {
-    AddTask(Transmit, 0);
+    if (!button_switched) {
+        AddTask(Transmit, 0); // avoids needing volatile variables
+        AddTask(ResetCooldown, 30);
+        button_switched = true;
+
+        a = 1 - a;
+        digitalWrite(LED_PIN, a);
+    }
 }
 
 void loop() {

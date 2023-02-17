@@ -2,6 +2,6 @@
     "configuration": "chip=1616,clock=10internal,bodvoltage=2v6,bodmode=disabled,eesave=enable,millis=enabled,resetpin=UPDI,startuptime=8,wiremode=mors,printf=default,attach=allenabled,WDTtimeout=disabled,WDTwindow=disabled",
     "board": "megaTinyCore:megaavr:atxy6",
     "programmer": "megaTinyCore:jtag2updi",
-    "port": "COM6",
+    "port": "COM13",
     "sketch": "nRF24-pen.ino"
 }
