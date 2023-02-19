@@ -1,9 +1,12 @@
 #include "TaskScheduler.hpp"
 #include "config.hpp"
 #include "RadioControls.hpp"
+#include "Sleep.hpp"
 
 
 RadioControls controls;
+
+uint32_t last_activity_time;
 
 void setup() {
     //controls.Init(RADIO_CE, RADIO_CS, ADDRESS1, ADDRESS2, MotorHandler);
@@ -11,30 +14,54 @@ void setup() {
     pinMode(BUTTON_PIN, INPUT);
     pinMode(MOTOR_PIN, OUTPUT);
     pinMode(LED_PIN, OUTPUT);
-    flip();
+
+    SleepInit();
+
     Receive();
     Transmit();
+    CheckTimeout();
+
+    last_activity_time = millis();
 }
 
-int a = 0;
-void flip() {
-    a = 1 - a;
-    digitalWrite(LED_PIN, a);
-    AddTask(flip, 200);
-}
 
 void MotorHandler(bool state) {
     digitalWrite(MOTOR_PIN, state);
+    if (state) { last_activity_time = millis(); }
 }
 
 void Receive() {
     controls.UpdateReceive();
-    AddTask(Receive, 30);
+    AddTask(Receive, READ_DELAY);
 }
 
 void Transmit() {
-    controls.UpdateTransmit(!digitalRead(BUTTON_PIN));
-    AddTask(Transmit, 20);
+    bool value = !digitalRead(BUTTON_PIN);
+    digitalWrite(LED_PIN, controls.UpdateTransmit(value) && value);
+
+    if (value) { last_activity_time = millis(); }
+    
+    AddTask(Transmit, WRITE_DELAY);
+}
+
+void CheckTimeout() {
+    if ((millis() - last_activity_time) > TIMEOUT) {
+        PowerSave();
+    }
+    AddTask(CheckTimeout, 50);
+}
+
+
+void PowerSave() {
+    while(1) {
+        controls.PowerDown();
+        Sleep(RADIO_CE);
+        //delay(3000);
+        controls.PowerUp();
+        delay(READ_DELAY);
+        if (controls.UpdateReceive() || (!digitalRead(BUTTON_PIN))) { break; }
+    }
+    last_activity_time = millis();
 }
 
 void loop() {

@@ -18,7 +18,7 @@ void RadioControls::Init(uint8_t CE, uint8_t CS, const char* address1, const cha
     radio.startListening();
 }
 
-void RadioControls::UpdateReceive() {
+bool RadioControls::UpdateReceive() {
     if (radio.available()) {
         _motorHandler(true);
         // clear read fifo
@@ -26,31 +26,34 @@ void RadioControls::UpdateReceive() {
             uint8_t dummy;
             radio.read(&dummy, 1);
         }
+        return true;
     }
-    else
-        _motorHandler(false);
+    _motorHandler(false);
+    return false;
 }
 
-void RadioControls::UpdateTransmit(bool buttonState) {
+bool RadioControls::UpdateTransmit(bool buttonState) {
+    bool success = true;
     if (buttonState) {
+        success = false;
         radio.stopListening();
         for (int i = 0; i < SEND_REPEATS; i++) {
             uint8_t buffer[2];
-            if (radio.write(buffer, 2))
+            if (radio.write(buffer, 2)) {
+                success = true;
                 break;
+            }
         }
         radio.startListening();
     }
+    return success;
 }
 
-/*
-    read radio
-    if nothing: 
-        send if necessary
-        if it doesnt go through:
-            send again
-        if it keeps not going through for 5 times, just give up lmao
-    else: 
-        activate the motor
+void RadioControls::PowerDown() {
+    radio.powerDown();
+}
 
-*/
+void RadioControls::PowerUp() {
+    radio.powerUp();
+    radio.startListening();
+}

@@ -10,3 +10,8 @@
 
 #define ADDRESS1    "hello"
 #define ADDRESS2    "asdff"
+
+#define READ_DELAY  30
+#define WRITE_DELAY 20
+
+#define TIMEOUT     (uint32_t) 2 /* minutes */ * 60 /* seconds*/ * 1000 /* milliseconds */
