@@ -1,6 +1,10 @@
 #include "TaskScheduler.hpp"
 
 
+/*
+    Similar to setTimeOut in JavaScript
+*/
+
 #define QUEUE_SIZE 32
 
 typedef struct {
