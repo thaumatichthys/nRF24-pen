@@ -53,12 +53,10 @@ void CheckTimeout() {
     AddTask(CheckTimeout, 50);
 }
 
-
 void PowerSave() {
     while(1) {
         controls.PowerDown();
         Sleep(RADIO_CE);
-        //delay(3000);
         controls.PowerUp();
         delay(READ_DELAY);
         if (controls.UpdateReceive() || (!digitalRead(BUTTON_PIN)))

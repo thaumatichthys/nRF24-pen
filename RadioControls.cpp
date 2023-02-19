@@ -7,7 +7,6 @@ static void (*_motorHandler)(bool);
 void RadioControls::Init(uint8_t CE, uint8_t CS, const char* address1, const char* address2, void (*motorHandler)(bool)) {
     _motorHandler = motorHandler;
 
-    //RadioControls::radio = new RF24(CE, CS);
     radio.begin(CE, CS);
     radio.setPayloadSize(2);
     radio.setDataRate(RF24_250KBPS);
